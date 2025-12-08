@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import * as SecureStore from "expo-secure-store";
 import {
   View,
   Text,
@@ -7,6 +8,10 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+
+async function saveEmail(email) {
+  await SecureStore.setItemAsync("userEmail", email);
+}
 
 export default function LoginForm({ navigation }) {
   const [email, setEmail] = useState("");
@@ -22,26 +27,24 @@ export default function LoginForm({ navigation }) {
     try {
       setLoading(true);
 
-      // 1. Get CSRF token
       const csrfRes = await fetch("https://qup.dating/api/auth/csrf");
       const { csrfToken } = await csrfRes.json();
 
-      // 2. Post credentials to NextAuth
       const response = await fetch(
         "https://qup.dating/api/auth/signin/credentials",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: `csrfToken=${csrfToken}&email=${encodeURIComponent(
             email
           )}&password=${encodeURIComponent(password)}`,
+          credentials: "include", // important for cookies
         }
       );
 
       // 3. Handle response
       if (response.ok) {
+        await SecureStore.setItemAsync("userEmail", email);
         Alert.alert("Success", "Logged in successfully!");
         navigation.replace("MainTabs", { screen: "Home" });
       } else {

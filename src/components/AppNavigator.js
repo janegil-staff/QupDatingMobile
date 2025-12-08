@@ -20,34 +20,31 @@ import DiscoverScreen from "../screens/DiscoverScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import LogoutScreen from "../screens/LogoutScreen";
 import HomeScreen from "../screens/HomeScreen";
+import EditProfileScreen from "../screens/EditProfileScreen";
+import EditBasicScreen from "../screens/edit/EditBasicScreen";
+import EditLifestyleScreen from "../screens/edit/EditLifestyleScreen";
+import EditHabitsScreen from "../screens/edit/EditHabitsScreen";
+import EditBioScreen from "../screens/edit/EditBioScreen";
+import EditReviewScreen from "../screens/edit/EditReviewScreen";
+import EditImagesScreen from "../screens/edit/EditImagesScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 // 👇 Bottom tab navigator for logged-in users
 function MainTabs() {
-  const navLinks = [
-    {
-      href: "/dashboard",
-      label: "Home",
-      icon: <Ionicons name="home" size={24} color="white" />,
-    },
-    {
-      href: "/matches",
-      label: "Matches",
-      icon: <FontAwesome name="heart" size={24} color="white" />,
-    },
-    {
-      href: "/discover",
-      label: "Discover",
-      icon: <Ionicons name="search" size={24} color="white" />,
-    },
-    {
-      href: "/profile/edit",
-      label: "Edit",
-      icon: <FontAwesome name="pencil" size={24} color="white" />,
-    },
-  ];
+  function EditStack() {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="EditBasic" component={EditBasicScreen} />
+        <Stack.Screen name="EditLifestyle" component={EditLifestyleScreen} />
+        <Stack.Screen name="EditHabits" component={EditHabitsScreen} />
+        <Stack.Screen name="EditBio" component={EditBioScreen} />
+        <Stack.Screen name="EditImages" component={EditImagesScreen} />
+        <Stack.Screen name="EditReview" component={EditReviewScreen} />
+      </Stack.Navigator>
+    );
+  }
 
   return (
     <Tab.Navigator
@@ -82,8 +79,13 @@ function MainTabs() {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Matches" component={MatchesScreen} />
       <Tab.Screen name="Discover" component={DiscoverScreen} />
+      <Tab.Screen name="Edit" component={EditStack} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
-      <Tab.Screen name="Logout" component={LogoutScreen}  options={{ tabBarLabel: "Logout" }} />
+      <Tab.Screen
+        name="Logout"
+        component={LogoutScreen}
+        options={{ tabBarrLabel: "Logout" }}
+      />
     </Tab.Navigator>
   );
 }
