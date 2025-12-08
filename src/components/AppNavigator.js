@@ -1,12 +1,11 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 // Screens
 import LandingScreen from "../screens/LandingScreen";
 import LoginForm from "./LoginForm";
-
-// Onboarding pipeline (Register flow)
 import AccountSetupScreen from "../screens/AccountSetupScreen";
 import OnboardingDetails from "../screens/OnboardingDetails";
 import LifestyleBasicsScreen from "../screens/LifestyleBasicsScreen";
@@ -14,49 +13,57 @@ import HabitsFamilyScreen from "../screens/HabitsFamilyScreen";
 import BioPreferencesScreen from "../screens/BioPreferencesScreen";
 import ImageUploadScreen from "../screens/ImageUploadScreen";
 import ReviewSubmit from "../screens/ReviewSubmit";
+
+// Logged-in screens
+import MatchesScreen from "../screens/MatchesScreen";
+import DiscoverScreen from "../screens/DiscoverScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import LogoutScreen from "../screens/LogoutScreen";
 import HomeScreen from "../screens/HomeScreen";
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+// 👇 Bottom tab navigator for logged-in users
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: { backgroundColor: "#111827" },
+        tabBarActiveTintColor: "#10b981",
+        tabBarInactiveTintColor: "#9CA3AF",
+      }}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Matches" component={MatchesScreen} />
+      <Tab.Screen name="Discover" component={DiscoverScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Logout" component={LogoutScreen} />
+    </Tab.Navigator>
+  );
+}
 
 export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="LandingScreen"
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: "#111827" }, // dark theme polish
-        }}
+        screenOptions={{ headerShown: false }}
       >
-        {/* Landing page */}
+        {/* Public flow */}
         <Stack.Screen name="LandingScreen" component={LandingScreen} />
-
-        {/* Login flow */}
         <Stack.Screen name="LoginForm" component={LoginForm} />
-
-        {/* Register flow (onboarding pipeline) */}
-        <Stack.Screen
-          name="AccountSetupScreen"
-          component={AccountSetupScreen}
-        />
+        <Stack.Screen name="AccountSetupScreen" component={AccountSetupScreen} />
         <Stack.Screen name="OnboardingDetails" component={OnboardingDetails} />
-        <Stack.Screen
-          name="LifestyleBasicsScreen"
-          component={LifestyleBasicsScreen}
-        />
-        <Stack.Screen
-          name="HabitsFamilyScreen"
-          component={HabitsFamilyScreen}
-        />
-        <Stack.Screen
-          name="BioPreferencesScreen"
-          component={BioPreferencesScreen}
-        />
-
+        <Stack.Screen name="LifestyleBasicsScreen" component={LifestyleBasicsScreen} />
+        <Stack.Screen name="HabitsFamilyScreen" component={HabitsFamilyScreen} />
+        <Stack.Screen name="BioPreferencesScreen" component={BioPreferencesScreen} />
         <Stack.Screen name="ImageUploadScreen" component={ImageUploadScreen} />
         <Stack.Screen name="ReviewSubmit" component={ReviewSubmit} />
 
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        {/* Logged-in flow */}
+        <Stack.Screen name="MainTabs" component={MainTabs} />
       </Stack.Navigator>
     </NavigationContainer>
   );

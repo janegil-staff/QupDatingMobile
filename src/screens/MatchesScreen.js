@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-export default function ProfileScreen() {
+export default function MatchesScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Your Profile</Text>
+      <Text style={styles.heading}>Your Matches</Text>
       <Text style={styles.subheading}>
-        Manage your details, preferences, and photos here.
+        Here you’ll see people you’ve matched with.
       </Text>
     </View>
   );

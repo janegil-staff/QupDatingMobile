@@ -43,7 +43,7 @@ export default function LoginForm({ navigation }) {
       // 3. Handle response
       if (response.ok) {
         Alert.alert("Success", "Logged in successfully!");
-        navigation.replace("HomeScreen"); // 👈 replace with your app's home/dashboard
+        navigation.replace("MainTabs", { screen: "Home" });
       } else {
         const errorText = await response.text();
         Alert.alert("Login Failed", errorText || "Invalid credentials");

@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-export default function ProfileScreen() {
+export default function DiscoverScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Your Profile</Text>
+      <Text style={styles.heading}>Discover</Text>
       <Text style={styles.subheading}>
-        Manage your details, preferences, and photos here.
+        Explore new profiles and find potential matches.
       </Text>
     </View>
   );
