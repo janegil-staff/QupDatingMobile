@@ -5,19 +5,60 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 
-export default function AccountSetupScreen({ navigation }) {
-  const [name, setName] = useState("");
+export default function LoginForm({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Basic validation: name required, email must include "@", password min 6 chars
-  const isValid = name && email.includes("@") && password.length >= 6;
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // 1. Get CSRF token
+      const csrfRes = await fetch("http://localhost:3000/api/auth/csrf");
+      const { csrfToken } = await csrfRes.json();
+
+      // 2. Post credentials to NextAuth
+      const response = await fetch(
+        "http://localhost:3000/api/auth/signin/credentials",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `csrfToken=${csrfToken}&email=${encodeURIComponent(
+            email
+          )}&password=${encodeURIComponent(password)}`,
+        }
+      );
+
+      // 3. Handle response
+      if (response.ok) {
+        Alert.alert("Success", "Logged in successfully!");
+        navigation.replace("HomeScreen"); // 👈 replace with your app's home/dashboard
+      } else {
+        const errorText = await response.text();
+        Alert.alert("Login Failed", errorText || "Invalid credentials");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {/* Back button to LandingScreen */}
+      {/* Back button */}
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.navigate("LandingScreen")}
@@ -25,17 +66,9 @@ export default function AccountSetupScreen({ navigation }) {
         <Text style={styles.backText}>← Back</Text>
       </TouchableOpacity>
 
-      {/* Form wrapper */}
+      {/* Form */}
       <View style={styles.form}>
-        <Text style={styles.heading}>Create Your Account</Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Name"
-          placeholderTextColor="#9CA3AF"
-          value={name}
-          onChangeText={setName}
-        />
+        <Text style={styles.heading}>Login</Text>
 
         <TextInput
           style={styles.input}
@@ -49,7 +82,7 @@ export default function AccountSetupScreen({ navigation }) {
 
         <TextInput
           style={styles.input}
-          placeholder="Password (min 6 chars)"
+          placeholder="Password"
           placeholderTextColor="#9CA3AF"
           secureTextEntry
           value={password}
@@ -57,13 +90,13 @@ export default function AccountSetupScreen({ navigation }) {
         />
 
         <TouchableOpacity
-          style={[styles.nextButton, !isValid && styles.nextButtonDisabled]}
-          disabled={!isValid}
-          onPress={() =>
-            navigation.navigate("OnboardingDetails", { name, email, password })
-          }
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleLogin}
+          disabled={loading}
         >
-          <Text style={styles.nextText}>Next</Text>
+          <Text style={styles.buttonText}>
+            {loading ? "Logging in..." : "Login"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -73,9 +106,9 @@ export default function AccountSetupScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827", // dark theme background
-    justifyContent: "center",   // center vertically
-    alignItems: "center",       // center horizontally
+    backgroundColor: "#111827",
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   backButton: {
@@ -90,7 +123,7 @@ const styles = StyleSheet.create({
   },
   form: {
     width: "100%",
-    maxWidth: 400,       // keeps form centered on larger screens
+    maxWidth: 400,
     alignItems: "center",
   },
   heading: {
@@ -110,17 +143,17 @@ const styles = StyleSheet.create({
     borderColor: "#374151",
     marginBottom: 16,
   },
-  nextButton: {
+  button: {
     backgroundColor: "#10b981",
     paddingVertical: 14,
     paddingHorizontal: 40,
     borderRadius: 8,
     marginTop: 20,
   },
-  nextButtonDisabled: {
+  buttonDisabled: {
     backgroundColor: "#6B7280",
   },
-  nextText: {
+  buttonText: {
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "600",

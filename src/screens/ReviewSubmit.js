@@ -107,7 +107,7 @@ export default function ReviewSubmit({ navigation, route }) {
       formData.append("profileImage", uploadedImages[0]?.url || "");
 
       // Step 3: Send to register API
-      const response = await fetch("http://localhost:3000/api/mobile", {
+      const response = await fetch("http://localhost:3000/api/mobile/register", {
         method: "POST",
         body: formData,
       });

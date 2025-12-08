@@ -1,91 +1,53 @@
-import { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import React, { useState } from "react";
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-native";
 
-export default function AuthScreen({ navigation }) {
-  const [isLogin, setIsLogin] = useState(true);
+export default function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = () => {
+    console.log("Logging in with:", { email, password });
+    // TODO: call your API /auth/login
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{isLogin ? "Log In" : "Sign Up"}</Text>
-
+    <View style={styles.form}>
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#888"
-        keyboardType="email-address"
+        placeholderTextColor="#9CA3AF"
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor="#888"
+        placeholderTextColor="#9CA3AF"
         secureTextEntry
+        value={password}
+        onChangeText={setPassword}
       />
-
-      {!isLogin && (
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor="#888"
-          secureTextEntry
-        />
-      )}
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate("Profile")}
-      >
-        <Text style={styles.buttonText}>{isLogin ? "Log In" : "Sign Up"}</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
-        <Text style={styles.toggle}>
-          {isLogin
-            ? "Don't have an account? Sign Up"
-            : "Already have an account? Log In"}
-        </Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-    backgroundColor: "#111",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 24,
-    textAlign: "center",
-  },
+  form: { width: "100%" },
   input: {
-    backgroundColor: "#222",
+    backgroundColor: "#1F2937",
     color: "#fff",
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
   },
   button: {
-    backgroundColor: "#88C0D0",
-    paddingVertical: 14,
+    backgroundColor: "#10b981",
+    padding: 14,
     borderRadius: 8,
-    marginTop: 8,
+    alignItems: "center",
   },
-  buttonText: {
-    color: "#000",
-    fontWeight: "bold",
-    fontSize: 16,
-    textAlign: "center",
-  },
-  toggle: { color: "#88C0D0", marginTop: 16, textAlign: "center" },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });

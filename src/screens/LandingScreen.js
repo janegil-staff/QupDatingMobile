@@ -20,12 +20,23 @@ export default function LandingScreen({ navigation }) {
           <Text style={styles.subtitle}>
             Love with Norwegian warmth and world-class UX
           </Text>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate("AccountSetupScreen")}
-          >
-            <Text style={styles.buttonText}>Get Started</Text>
-          </TouchableOpacity>
+
+          {/* Two buttons side-by-side */}
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[styles.button, styles.loginButton]}
+              onPress={() => navigation.navigate("LoginForm")}
+            >
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.button, styles.registerButton]}
+              onPress={() => navigation.navigate("AccountSetupScreen")}
+            >
+              <Text style={styles.buttonText}>Register</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ImageBackground>
 
@@ -56,14 +67,29 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   subtitle: { fontSize: 16, color: "#ccc", marginTop: 8, textAlign: "center" },
-  button: {
+
+  // 👇 Row for side-by-side buttons
+  buttonRow: {
+    flexDirection: "row",
     marginTop: 20,
-    backgroundColor: "#88C0D0",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  button: {
+    flex: 1,
     paddingVertical: 12,
-    paddingHorizontal: 24,
+    marginHorizontal: 8,
     borderRadius: 8,
+    alignItems: "center",
+  },
+  loginButton: {
+    backgroundColor: "#88C0D0", // bluish
+  },
+  registerButton: {
+    backgroundColor: "#A3BE8C", // greenish
   },
   buttonText: { color: "#000", fontWeight: "bold", fontSize: 16 },
+
   aboutSection: { padding: 24, backgroundColor: "#111" },
   aboutTitle: {
     fontSize: 24,
