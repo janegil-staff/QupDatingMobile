@@ -32,7 +32,7 @@ export default function LandingScreen({ navigation }) {
 
             <TouchableOpacity
               style={[styles.button, styles.registerButton]}
-              onPress={() => navigation.navigate("AccountSetupScreen")}
+              onPress={() => navigation.navigate("RegisterScreen")}
             >
               <Text style={styles.buttonText}>Register</Text>
             </TouchableOpacity>

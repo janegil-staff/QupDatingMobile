@@ -6,13 +6,6 @@ import { Ionicons, FontAwesome } from "@expo/vector-icons";
 // Screens
 import LandingScreen from "../screens/LandingScreen";
 import LoginForm from "./LoginForm";
-import AccountSetupScreen from "../screens/onboarding/AccountSetupScreen";
-import OnboardingDetails from "../screens/onboarding/OnboardingDetails";
-import LifestyleBasicsScreen from "../screens/onboarding/LifestyleBasicsScreen";
-import HabitsFamilyScreen from "../screens/onboarding/HabitsFamilyScreen";
-import BioPreferencesScreen from "../screens/onboarding/BioPreferencesScreen";
-import ImageUploadScreen from "../screens/onboarding/ImageUploadScreen";
-import ReviewSubmit from "../screens/onboarding/ReviewSubmit";
 
 // Logged-in screens
 import MatchesScreen from "../screens/MatchesScreen";
@@ -20,12 +13,18 @@ import DiscoverScreen from "../screens/DiscoverScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import LogoutScreen from "../screens/LogoutScreen";
 import HomeScreen from "../screens/HomeScreen";
-import EditProfileScreen from "../screens/EditProfileScreen";
+import RegisterScreen from "../screens/RegisterScreen";
+import Step0Basic from "../screens/edit/Step0Basic";
+import Step1Appearance from "../screens/edit/Step1Appearance";
+import Step2Lifestyle from "../screens/edit/Step2Lifestyle";
+import Step3Details from "../screens/edit/Step3Details";
+import Step4Location from "../screens/edit/Step4Location";
+import Step5Images from "../screens/edit/Step5Images";
 import EditBasicScreen from "../screens/edit/EditBasicScreen";
+import EditAppearanceScreen from "../screens/edit/EditAppearanceScreen";
 import EditLifestyleScreen from "../screens/edit/EditLifestyleScreen";
 import EditHabitsScreen from "../screens/edit/EditHabitsScreen";
-import EditBioScreen from "../screens/edit/EditBioScreen";
-import EditReviewScreen from "../screens/edit/EditReviewScreen";
+import EditDetailsScreen from "../screens/edit/EditDetailsScreen";
 import EditImagesScreen from "../screens/edit/EditImagesScreen";
 
 const Stack = createNativeStackNavigator();
@@ -37,11 +36,11 @@ function MainTabs() {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="EditBasic" component={EditBasicScreen} />
+        <Stack.Screen name="EditAppearance" component={EditAppearanceScreen} />
         <Stack.Screen name="EditLifestyle" component={EditLifestyleScreen} />
+        <Stack.Screen name="EditDetails" component={EditDetailsScreen} />
         <Stack.Screen name="EditHabits" component={EditHabitsScreen} />
-        <Stack.Screen name="EditBio" component={EditBioScreen} />
         <Stack.Screen name="EditImages" component={EditImagesScreen} />
-        <Stack.Screen name="EditReview" component={EditReviewScreen} />
       </Stack.Navigator>
     );
   }
@@ -84,7 +83,7 @@ function MainTabs() {
       <Tab.Screen
         name="Logout"
         component={LogoutScreen}
-        options={{ tabBarrLabel: "Logout" }}
+        options={{ tabBarLabel: "Logout" }}
       />
     </Tab.Navigator>
   );
@@ -100,25 +99,7 @@ export default function AppNavigator() {
         {/* Public flow */}
         <Stack.Screen name="LandingScreen" component={LandingScreen} />
         <Stack.Screen name="LoginForm" component={LoginForm} />
-        <Stack.Screen
-          name="AccountSetupScreen"
-          component={AccountSetupScreen}
-        />
-        <Stack.Screen name="OnboardingDetails" component={OnboardingDetails} />
-        <Stack.Screen
-          name="LifestyleBasicsScreen"
-          component={LifestyleBasicsScreen}
-        />
-        <Stack.Screen
-          name="HabitsFamilyScreen"
-          component={HabitsFamilyScreen}
-        />
-        <Stack.Screen
-          name="BioPreferencesScreen"
-          component={BioPreferencesScreen}
-        />
-        <Stack.Screen name="ImageUploadScreen" component={ImageUploadScreen} />
-        <Stack.Screen name="ReviewSubmit" component={ReviewSubmit} />
+        <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
 
         {/* Logged-in flow */}
         <Stack.Screen name="MainTabs" component={MainTabs} />

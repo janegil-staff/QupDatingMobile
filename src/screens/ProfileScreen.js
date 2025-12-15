@@ -1,147 +1,244 @@
-import React, { useEffect, useState } from "react";
-import * as SecureStore from "expo-secure-store";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Image,
-  TouchableOpacity,
-  ActivityIndicator,
   ScrollView,
+  ActivityIndicator,
+  StyleSheet,
 } from "react-native";
+import * as SecureStore from "expo-secure-store";
+import { useFocusEffect } from "@react-navigation/native";
 
-export default function ProfileScreen({ navigation }) {
-  const [user, setUser] = useState(null);
+export default function ProfileScreen({ route }) {
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    
-    const fetchProfile = async () => {
-        const storedEmail = await SecureStore.getItemAsync("userEmail");
-      try {
-        const res = await fetch(
-          `https://qup.dating/api/mobile/profile?email=${storedEmail}`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-          }
-        );
-        const data = await res.json();
-        setUser(data);
-      } catch (err) {
-        console.error("Error fetching profile:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
+  /** ----------------------------------
+   * Fetch profile when screen is focused
+   * ---------------------------------- */
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const token = await SecureStore.getItemAsync("authToken");
+      const res = await fetch("https://qup.dating/api/mobile/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setProfile(data.user || data); // handle API returning user directly or wrapped
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load profile");
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProfile();
+    }, [])
+  );
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="white" />
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#ff69b4" />
+        <Text style={styles.loading}>Loading profile…</Text>
       </View>
     );
   }
 
-  if (!user) {
+  if (error) {
     return (
-      <View style={styles.container}>
-        <Text style={{ color: "white" }}>No profile data found</Text>
+      <View style={styles.center}>
+        <Text style={styles.error}>{error}</Text>
       </View>
     );
   }
+
+  if (!profile) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.error}>No profile data found.</Text>
+      </View>
+    );
+  }
+
+  const age = profile.birthdate
+    ? new Date().getFullYear() - new Date(profile.birthdate).getFullYear()
+    : null;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image source={{ uri: user.profileImage }} style={styles.avatar} />
-      <Text style={styles.name}>{user.name}</Text>
-      <Text style={styles.email}>{user.email}</Text>
-
-      {/* Location */}
-      <Text style={styles.location}>
-        {user.location?.name} ({user.location?.country})
-      </Text>
-
-      {/* Bio */}
-      <View style={styles.bioBox}>
-        <Text style={styles.bio}>{user.bio}</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <Image
+          source={{
+            uri: profile.profileImage || "https://placehold.co/100x100",
+          }}
+          style={styles.avatar}
+        />
+        <View style={styles.headerText}>
+          <Text style={styles.name}>{profile.name}</Text>
+          <Text style={styles.status}>
+            {profile.relationshipStatus || "Undefined status"}
+          </Text>
+          <Text style={styles.sub}>
+            {age ? `${age} years • ${profile.gender}` : profile.gender}
+          </Text>
+          <Text style={styles.location}>{profile.location?.name}</Text>
+        </View>
       </View>
 
+      {/* Bio */}
+      {profile.bio && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>About Me</Text>
+          <Text style={styles.sectionText}>{profile.bio}</Text>
+        </View>
+      )}
+
       {/* Gallery */}
-      <ScrollView horizontal style={{ marginVertical: 10 }}>
-        {user.images?.map((img) => (
-          <Image
-            key={img._id}
-            source={{ uri: img.url }}
-            style={styles.galleryImage}
-          />
-        ))}
-      </ScrollView>
+      {profile.images?.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Photos</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {profile.images.map((img, i) => (
+              <Image
+                key={i}
+                source={{ uri: img.url || img.uri }}
+                style={styles.galleryImage}
+              />
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
+      {/* Other sections */}
+      <SimpleSection
+        title="Appearance"
+        items={[
+          { label: "Appearance", value: profile.appearance },
+          { label: "Body Type", value: profile.bodyType },
+          {
+            label: "Height",
+            value: profile.height ? `${profile.height} cm` : null,
+          },
+        ]}
+      />
+
+      <SimpleSection
+        title="Lifestyle"
+        items={[
+          { label: "Smoking", value: profile.smoking },
+          { label: "Drinking", value: profile.drinking },
+          { label: "Has Children", value: profile.hasChildren ? "Yes" : "No" },
+          {
+            label: "Wants Children",
+            value: profile.wantsChildren ? "Yes" : "No",
+          },
+          {
+            label: "Willing to Relocate",
+            value: profile.willingToRelocate ? "Yes" : "No",
+          },
+        ]}
+      />
+
+      <SimpleSection
+        title="Personal Info"
+        items={[
+          { label: "Religion", value: profile.religion },
+          { label: "Occupation", value: profile.occupation },
+          { label: "Education", value: profile.education },
+          { label: "Relationship Status", value: profile.relationshipStatus },
+        ]}
+      />
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>What I'm Looking For</Text>
+        <Text style={styles.sectionText}>
+          {profile.lookingFor || "Not specified yet."}
+        </Text>
+      </View>
+
+      {profile.tags?.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>My Hashtags</Text>
+          <View style={styles.tagsContainer}>
+            {profile.tags.map((tag, i) => (
+              <Text key={i} style={styles.tag}>
+                {tag}
+              </Text>
+            ))}
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 }
 
+function SimpleSection({ title, items }) {
+  const valid = items.filter((i) => i.value);
+  if (valid.length === 0) return null;
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {valid.map((item, i) => (
+        <View key={i} style={styles.row}>
+          <Text style={styles.label}>{item.label}</Text>
+          <Text style={styles.value}>{item.value}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
+  container: { padding: 20, backgroundColor: "#111" },
+  center: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#111827",
-    padding: 20,
+    backgroundColor: "#111",
   },
+  loading: { color: "#ccc", marginTop: 10 },
+  error: { color: "red", fontSize: 16 },
+  header: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: "#fff",
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: "#ff69b4",
   },
-  name: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 4,
-  },
-  email: {
-    fontSize: 14,
-    color: "gray",
-    marginBottom: 4,
-  },
-  location: {
-    fontSize: 14,
-    color: "gray",
-    marginBottom: 20,
-  },
-  bioBox: {
-    backgroundColor: "#1f2937",
+  headerText: { marginLeft: 15 },
+  name: { fontSize: 24, fontWeight: "bold", color: "#fff" },
+  status: { fontStyle: "italic", color: "#ff69b4" },
+  sub: { color: "#ccc" },
+  location: { color: "#888", fontSize: 12 },
+  section: {
+    backgroundColor: "#222",
     padding: 15,
     borderRadius: 8,
-    marginBottom: 30,
-    width: "100%",
+    marginBottom: 20,
   },
-  bio: {
-    color: "white",
-    textAlign: "center",
-  },
-  button: {
-    backgroundColor: "#2563eb",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginBottom: 12,
-    width: "100%",
-    alignItems: "center",
-  },
-  logoutButton: {
-    backgroundColor: "#dc2626",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "600",
+  sectionTitle: { fontSize: 18, fontWeight: "600", color: "#ff69b4", marginBottom: 8 },
+  sectionText: { color: "#ddd", lineHeight: 20 },
+  galleryImage: { width: 120, height: 120, borderRadius: 8, marginRight: 10 },
+  row: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+  label: { color: "#aaa", width: 140 },
+  value: { color: "#fff", flex: 1 },
+  tagsContainer: { flexDirection: "row", flexWrap: "wrap", marginTop: 8 },
+  tag: {
+    backgroundColor: "#ff69b4",
+    color: "#fff",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    marginRight: 8,
+    marginBottom: 8,
+    fontSize: 12,
   },
 });

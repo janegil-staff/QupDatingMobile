@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import * as SecureStore from "expo-secure-store";
 import {
   View,
   Text,
@@ -7,11 +6,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from "react-native";
-
-async function saveEmail(email) {
-  await SecureStore.setItemAsync("userEmail", email);
-}
+import * as SecureStore from "expo-secure-store";
 
 export default function LoginForm({ navigation }) {
   const [email, setEmail] = useState("");
@@ -20,40 +17,32 @@ export default function LoginForm({ navigation }) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("Error", "Please enter both email and password.");
+      Alert.alert("Error", "Please enter both email and password");
       return;
     }
 
     try {
       setLoading(true);
 
-      const csrfRes = await fetch("https://qup.dating/api/auth/csrf");
-      const { csrfToken } = await csrfRes.json();
+      const res = await fetch("https://qup.dating/api/mobile/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-      const response = await fetch(
-        "https://qup.dating/api/auth/signin/credentials",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: `csrfToken=${csrfToken}&email=${encodeURIComponent(
-            email
-          )}&password=${encodeURIComponent(password)}`,
-          credentials: "include", // important for cookies
-        }
-      );
+      const data = await res.json();
 
-      // 3. Handle response
-      if (response.ok) {
-        await SecureStore.setItemAsync("userEmail", email);
-        Alert.alert("Success", "Logged in successfully!");
-        navigation.replace("MainTabs", { screen: "Home" });
+      if (res.ok) {
+        await SecureStore.setItemAsync("authToken", data.token);
+        await SecureStore.setItemAsync("userId", data.user._id);
+        await SecureStore.setItemAsync("userEmail", data.user.email);
+        navigation.navigate("MainTabs", { screen: "Edit" });
       } else {
-        const errorText = await response.text();
-        Alert.alert("Login Failed", errorText || "Invalid credentials");
+        Alert.alert("Login Failed", data.error || "Invalid credentials");
       }
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Something went wrong. Please try again.");
+    } catch (err) {
+      console.error("❌ Login error:", err);
+      Alert.alert("Error", "Network error");
     } finally {
       setLoading(false);
     }
@@ -61,47 +50,38 @@ export default function LoginForm({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Back button */}
+      <Text style={styles.title}>Login</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor="#888"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        placeholderTextColor="#888"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+
       <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.navigate("LandingScreen")}
+        style={styles.button}
+        onPress={handleLogin}
+        disabled={loading}
       >
-        <Text style={styles.backText}>← Back</Text>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
       </TouchableOpacity>
-
-      {/* Form */}
-      <View style={styles.form}>
-        <Text style={styles.heading}>Login</Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#9CA3AF"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#9CA3AF"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? "Logging in..." : "Login"}
-          </Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -109,56 +89,35 @@ export default function LoginForm({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
+    backgroundColor: "#111",
     justifyContent: "center",
-    alignItems: "center",
     padding: 20,
   },
-  backButton: {
-    position: "absolute",
-    top: 40,
-    left: 20,
-  },
-  backText: {
-    color: "#88C0D0",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  form: {
-    width: "100%",
-    maxWidth: 400,
-    alignItems: "center",
-  },
-  heading: {
-    color: "#FFFFFF",
-    fontSize: 22,
-    fontWeight: "700",
-    marginBottom: 20,
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 30,
     textAlign: "center",
   },
   input: {
-    width: "100%",
-    backgroundColor: "#1F2937",
-    color: "#FFFFFF",
-    padding: 14,
+    backgroundColor: "#222",
+    color: "#fff",
+    padding: 15,
     borderRadius: 8,
+    marginBottom: 15,
     borderWidth: 1,
-    borderColor: "#374151",
-    marginBottom: 16,
+    borderColor: "#333",
   },
   button: {
-    backgroundColor: "#10b981",
-    paddingVertical: 14,
-    paddingHorizontal: 40,
+    backgroundColor: "#ff69b4",
+    padding: 15,
     borderRadius: 8,
-    marginTop: 20,
-  },
-  buttonDisabled: {
-    backgroundColor: "#6B7280",
+    alignItems: "center",
   },
   buttonText: {
-    color: "#FFFFFF",
-    fontSize: 18,
+    color: "#fff",
     fontWeight: "600",
+    fontSize: 16,
   },
 });

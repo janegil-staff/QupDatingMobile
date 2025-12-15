@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import Step5Images from "./Step5Images"; // adjust path if needed
+import Step3Details from "./Step3Details";
 
-export default function EditImagesScreen({ navigation }) {
+export default function EditDetailsScreen({ navigation }) {
   const [form, setForm] = useState({
-    images: [], // start with empty array
+    education: "",
+    religion: "",
+    relationship: "",
+    children: "",
   });
 
   const setField = (field, value) => {
@@ -13,7 +16,7 @@ export default function EditImagesScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <Step5Images
+      <Step3Details
         form={form}
         setForm={setForm}
         setField={setField}
