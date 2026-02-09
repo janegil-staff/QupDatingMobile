@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as Progress from "react-native-progress";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Step0Basic({ form, setForm, setField, navigation }) {
   const [loading, setLoading] = useState(true);
@@ -63,145 +65,180 @@ export default function Step0Basic({ form, setForm, setField, navigation }) {
 
   if (loading) {
     return (
-      <ActivityIndicator
-        size="large"
-        color="#ff69b4"
-        style={{ marginTop: 50 }}
-      />
+      <LinearGradient
+        colors={["#0f0c29", "#1a1a2e", "#16213e"]}
+        style={styles.loadingContainer}
+      >
+        <ActivityIndicator size="large" color="#ff69b4" />
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Progress.Bar
-        progress={0}
-        width={null}
-        color="#ff69b4"
-        style={styles.progress}
-      />
-      {/* Name */}
-      <View style={styles.field}>
-        <Text style={styles.label}>Name</Text>
-        <TextInput
-          value={form?.name ?? ""}
-          onChangeText={(val) => setField("name", val)}
-          style={styles.input}
-          placeholder="Enter your name"
-          placeholderTextColor="#6b7280"
+    <LinearGradient
+      colors={["#0f0c29", "#1a1a2e", "#16213e"]}
+      style={styles.container}
+    >
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Progress.Bar
+          progress={0}
+          width={null}
+          color="#ff69b4"
+          unfilledColor="rgba(255,255,255,0.08)"
+          borderColor="rgba(255,255,255,0.1)"
+          style={styles.progress}
         />
-      </View>
-      {/* Birthdate */}
-      <View style={styles.field}>
-        <Text style={styles.label}>Birthdate</Text>
-        <TouchableOpacity
-          style={styles.input}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Text style={{ color: form?.birthdate ? "white" : "#6b7280" }}>
-            {form?.birthdate || "Select birthdate"}
-          </Text>
-        </TouchableOpacity>
-        {showDatePicker && (
-          <DateTimePicker
-            value={form?.birthdate ? new Date(form.birthdate) : new Date()}
-            mode="date"
-            display="spinner"
-            textColor="white" // iOS only
-            themeVariant="dark" // Android dark theme
-            onChange={(event, date) => {
-              setShowDatePicker(false);
-              if (date) {
-                setField("birthdate", date.toISOString().split("T")[0]);
-              }
-            }}
+        {/* Name */}
+        <View style={styles.glassCard}>
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+            value={form?.name ?? ""}
+            onChangeText={(val) => setField("name", val)}
+            style={styles.input}
+            placeholder="Enter your name"
+            placeholderTextColor="rgba(255,255,255,0.35)"
           />
-        )}
-      </View>
-      {/* Gender */}
-      <View style={styles.field}>
-        <Text style={styles.label}>Gender</Text>
-        <View style={styles.genderRow}>
-          {["Male", "Female"].map((g) => (
-            <TouchableOpacity
-              key={g}
-              style={[
-                styles.genderButton,
-                form?.gender?.toLowerCase() === g.toLowerCase() &&
-                  styles.genderActive,
-              ]}
-              onPress={() => setField("gender", g)}
-            >
-              <Text
-                style={[
-                  styles.genderText,
-                  form?.gender?.toLowerCase() === g.toLowerCase() &&
-                    styles.genderTextActive,
-                ]}
-              >
-                {g}
-              </Text>
-            </TouchableOpacity>
-          ))}
         </View>
-      </View>
-      {/* Occupation */}
-      <View style={styles.field}>
-        <Text style={styles.label}>Occupation</Text>
-        <TextInput
-          value={form?.occupation ?? ""}
-          onChangeText={(val) => setField("occupation", val)}
-          style={styles.input}
-          placeholder="Your occupation"
-          placeholderTextColor="#6b7280"
-        />
-      </View>
+        {/* Birthdate */}
+        <View style={styles.glassCard}>
+          <Text style={styles.label}>Birthdate</Text>
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text
+              style={{
+                color: form?.birthdate
+                  ? "rgba(255,255,255,0.9)"
+                  : "rgba(255,255,255,0.35)",
+              }}
+            >
+              {form?.birthdate || "Select birthdate"}
+            </Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={form?.birthdate ? new Date(form.birthdate) : new Date()}
+              mode="date"
+              display="spinner"
+              textColor="white"
+              themeVariant="dark"
+              onChange={(event, date) => {
+                setShowDatePicker(false);
+                if (date) {
+                  setField("birthdate", date.toISOString().split("T")[0]);
+                }
+              }}
+            />
+          )}
+        </View>
+        {/* Gender */}
+        <View style={styles.glassCard}>
+          <Text style={styles.label}>Gender</Text>
+          <View style={styles.genderRow}>
+            {["Male", "Female"].map((g) => (
+              <TouchableOpacity
+                key={g}
+                style={[
+                  styles.genderButton,
+                  form?.gender?.toLowerCase() === g.toLowerCase() &&
+                    styles.genderActive,
+                ]}
+                onPress={() => setField("gender", g)}
+              >
+                <Text
+                  style={[
+                    styles.genderText,
+                    form?.gender?.toLowerCase() === g.toLowerCase() &&
+                      styles.genderTextActive,
+                  ]}
+                >
+                  {g}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+        {/* Occupation */}
+        <View style={styles.glassCard}>
+          <Text style={styles.label}>Occupation</Text>
+          <TextInput
+            value={form?.occupation ?? ""}
+            onChangeText={(val) => setField("occupation", val)}
+            style={styles.input}
+            placeholder="Your occupation"
+            placeholderTextColor="rgba(255,255,255,0.35)"
+          />
+        </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Bio</Text>
-        <TextInput
-          value={form?.bio ?? ""}
-          onChangeText={(val) => setField("bio", val)}
-          style={[styles.input, { height: 100, textAlignVertical: "top" }]}
-          placeholder="Tell us a bit about yourself"
-          placeholderTextColor="#6b7280"
-          multiline
-          numberOfLines={4}
-        />
-      </View>
+        <View style={styles.glassCard}>
+          <Text style={styles.label}>Bio</Text>
+          <TextInput
+            value={form?.bio ?? ""}
+            onChangeText={(val) => setField("bio", val)}
+            style={[styles.input, { height: 100, textAlignVertical: "top" }]}
+            placeholder="Tell us a bit about yourself"
+            placeholderTextColor="rgba(255,255,255,0.35)"
+            multiline
+            numberOfLines={4}
+          />
+        </View>
 
-      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <LinearGradient
+            colors={["rgba(255,105,180,0.9)", "rgba(255,60,150,0.9)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.nextGradient}
+          >
+            <Text style={styles.nextText}>Next</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
     padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   progress: {
     marginBottom: 20,
   },
-  field: {
-    marginBottom: 20,
+  glassCard: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    padding: 14,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   label: {
-    color: "#ccc",
+    color: "rgba(255,255,255,0.7)",
     fontSize: 14,
-    marginBottom: 6,
+    marginBottom: 8,
     fontWeight: "600",
   },
   input: {
-    backgroundColor: "#1f2937",
-    color: "white",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    color: "rgba(255,255,255,0.9)",
     paddingVertical: 12,
     paddingHorizontal: 14,
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#374151",
+    borderColor: "rgba(255,255,255,0.1)",
   },
   genderRow: {
     flexDirection: "row",
@@ -210,29 +247,38 @@ const styles = StyleSheet.create({
   genderButton: {
     flex: 1,
     marginHorizontal: 4,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: "#1f2937",
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: "rgba(255,255,255,0.08)",
     borderWidth: 1,
-    borderColor: "#374151",
+    borderColor: "rgba(255,255,255,0.1)",
     alignItems: "center",
   },
   genderActive: {
-    backgroundColor: "#ff69b4",
-    borderColor: "#ff69b4",
+    backgroundColor: "rgba(255,105,180,0.35)",
+    borderColor: "rgba(255,105,180,0.6)",
   },
   genderText: {
-    color: "#9ca3af",
+    color: "rgba(255,255,255,0.5)",
     fontWeight: "600",
   },
   genderTextActive: {
     color: "white",
   },
   nextButton: {
-    marginTop: 30,
-    backgroundColor: "#ff69b4",
+    marginTop: 20,
+    marginBottom: 30,
+    borderRadius: 12,
+    overflow: "hidden",
+    shadowColor: "#ff69b4",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  nextGradient: {
     paddingVertical: 14,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: "center",
   },
   nextText: {
